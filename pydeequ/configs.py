@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from functools import lru_cache
+from pyspark import SparkContext
 import subprocess
 import re
 
@@ -14,14 +15,7 @@ SPARK_TO_DEEQU_COORD_MAPPING = {
 @lru_cache(maxsize=None)
 def _get_spark_version() -> str:
     # Get version from a subprocess so we don't mess up with existing SparkContexts.
-    command = [
-        "python",
-        "-c",
-        "from pyspark import SparkContext; print(SparkContext.getOrCreate()._jsc.version())",
-    ]
-    output = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    spark_version = output.stdout.decode().split("\n")[-2]
-    return spark_version
+    return SparkContext.getOrCreate()._jsc.version()
 
 
 def _get_deequ_maven_config():
